@@ -9,12 +9,14 @@ SECTION = "BSP"
 
 IMX_FIRMWARE       = "firmware-imx imx-sc-firmware"
 IMX_FIRMWARE_mx8mq = "firmware-imx"
+IMX_FIRMWARE_mx8mm = "firmware-imx"
 DEPENDS += " \
     u-boot \
     ${IMX_FIRMWARE} \
     imx-atf \
 "
 DEPENDS_append_mx8mq = " dtc-native"
+DEPENDS_append_mx8mm = " dtc-native"
 BOOT_NAME = "imx-boot"
 PROVIDES = "${BOOT_NAME}"
 
@@ -46,6 +48,8 @@ ATF_MACHINE_NAME ?= "bl31-imx8qm.bin"
 ATF_MACHINE_NAME_mx8qm = "bl31-imx8qm.bin"
 ATF_MACHINE_NAME_mx8qxp = "bl31-imx8qxp.bin"
 ATF_MACHINE_NAME_mx8mq = "bl31-imx8mq.bin"
+ATF_MACHINE_NAME_mx8mm = "bl31-imx8mm.bin"
+ATF_MACHINE_NAME_append = "${@bb.utils.contains('COMBINED_FEATURES', 'optee', '-optee', '', d)}"
 
 DCD_NAME ?= "imx8qm_dcd.cfg.tmp"
 DCD_NAME_mx8qm = "imx8qm_dcd.cfg.tmp"
@@ -60,6 +64,7 @@ SOC_TARGET ?= "iMX8QM"
 SOC_TARGET_mx8qm  = "iMX8QM"
 SOC_TARGET_mx8qxp = "iMX8QX"
 SOC_TARGET_mx8mq  = "iMX8M"
+SOC_TARGET_mx8mm  = "iMX8MM"
 
 IMXBOOT_TARGETS ?= \
     "${@bb.utils.contains('UBOOT_CONFIG', 'fspi', 'flash_flexspi', \
@@ -74,11 +79,12 @@ IMXBOOT_TARGETS_mx8qxpa0 = \
         bb.utils.contains('UBOOT_CONFIG', 'nand', 'flash_nand_a0', \
                                                   'flash_multi_cores_a0 flash_a0 flash_dcd_a0', d), d)}"
 
-BOOT_STAGING = "${S}/${SOC_TARGET}"
+BOOT_STAGING       = "${S}/${SOC_TARGET}"
+BOOT_STAGING_mx8mm = "${S}/iMX8M"
 
 do_compile () {
-    if [ "${SOC_TARGET}" = "iMX8M" ]; then
-        echo 8MQ boot binary build
+    if [ "${SOC_TARGET}" = "iMX8M" -o "${SOC_TARGET}" = "iMX8MM" ]; then
+        echo 8MQ/8MM boot binary build
         for ddr_firmware in ${DDR_FIRMWARE_NAME}; do
             echo "Copy ddr_firmware: ${ddr_firmware} from ${DEPLOY_DIR_IMAGE} -> ${BOOT_STAGING} "
             cp ${DEPLOY_DIR_IMAGE}/${ddr_firmware}               ${BOOT_STAGING}
@@ -129,7 +135,7 @@ do_deploy () {
 
     # copy the tool mkimage to deploy path and sc fw, dcd and uboot
     install -m 0644 ${DEPLOY_DIR_IMAGE}/${UBOOT_NAME} ${DEPLOYDIR}/${BOOT_TOOLS}
-    if [ "${SOC_TARGET}" = "iMX8M" ]; then
+    if [ "${SOC_TARGET}" = "iMX8M" -o "${SOC_TARGET}" = "iMX8MM" ]; then
         install -m 0644 ${DEPLOY_DIR_IMAGE}/u-boot-spl.bin-${MACHINE}-${UBOOT_CONFIG} ${DEPLOYDIR}/${BOOT_TOOLS}
         for ddr_firmware in ${DDR_FIRMWARE_NAME}; do
             install -m 0644 ${DEPLOY_DIR_IMAGE}/${ddr_firmware} ${DEPLOYDIR}/${BOOT_TOOLS}
@@ -170,5 +176,5 @@ addtask deploy before do_build after do_compile
 
 FILES_${PN} = "/boot"
 
-COMPATIBLE_MACHINE = "(mx8qm|mx8qxp|mx8mq)"
+COMPATIBLE_MACHINE = "(mx8qm|mx8qxp|mx8mq|mx8mm)"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
