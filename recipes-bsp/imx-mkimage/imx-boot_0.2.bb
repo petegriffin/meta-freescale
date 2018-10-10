@@ -7,9 +7,8 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
 SECTION = "BSP"
 
-IMX_FIRMWARE        = "imx-sc-firmware"
-IMX_FIRMWARE_mx8mq  = "firmware-imx"
-IMX_FIRMWARE_mx8qxp = "firmware-imx imx-sc-firmware"
+IMX_FIRMWARE       = "firmware-imx imx-sc-firmware"
+IMX_FIRMWARE_mx8mq = "firmware-imx"
 DEPENDS += " \
     u-boot \
     ${IMX_FIRMWARE} \
