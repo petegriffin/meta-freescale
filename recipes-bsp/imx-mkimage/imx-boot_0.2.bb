@@ -176,7 +176,7 @@ do_deploy () {
 }
 addtask deploy before do_build after do_compile
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 FILES_${PN} = "/boot"
 
-COMPATIBLE_MACHINE = "(mx8qm|mx8qxp|mx8mq|mx8mm)"
-PACKAGE_ARCH = "${MACHINE_ARCH}"
+COMPATIBLE_MACHINE = "(mx8)"
