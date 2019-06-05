@@ -14,6 +14,10 @@ OPTEE_TEST_SRC ?= "git://source.codeaurora.org/external/imx/imx-optee-test.git;p
 SRC_URI = "${OPTEE_TEST_SRC};branch=${SRCBRANCH}"
 SRCREV = "b7b6c4d4af9607a3987988ae62b0957e659a32ef" 
 
+SRC_URI_append = " file://0001-xtest-prevent-unexpected-build-warning-with-strncpy.patch \
+                   file://0001-regression-4011-correct-potential-overflow.patch \
+"
+
 S = "${WORKDIR}/git"
 
 do_compile () {
