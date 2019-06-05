@@ -13,7 +13,9 @@ SRC_URI = "${OPTEE_CLIENT_SRC};branch=${SRCBRANCH}"
 SRCREV = "09b69afa5e9e74aac39e383d74f14b4d61c90476" 
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-SRC_URI_append = " file://tee-supplicant.service"
+
+SRC_URI_append = " file://0001-libteec-refactor-_dprintf.patch \
+                   file://tee-supplicant.service"
 
 S = "${WORKDIR}/git"
 SYSTEMD_SERVICE_${PN} = "tee-supplicant.service"
