@@ -65,10 +65,10 @@ do_install () {
     install -m 644 ${B}/core/*.bin ${D}/lib/firmware/
 
     # Install the TA devkit
-    install -d ${D}/usr/include/optee/export-user_ta_${OPTEE_ARCH}/
+    install -d ${D}/usr/include/optee/export-user_ta/
 
     for f in ${B}/export-ta_${OPTEE_ARCH}/*; do
-        cp -aR $f ${D}/usr/include/optee/export-user_ta_${OPTEE_ARCH}/
+        cp -aR $f ${D}/usr/include/optee/export-user_ta/
     done
 }
 
