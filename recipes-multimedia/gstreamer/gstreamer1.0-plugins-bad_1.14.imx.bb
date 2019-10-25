@@ -8,7 +8,7 @@ DEPENDS_append_mx8 = " libdrm"
 
 PACKAGECONFIG_append_mx6q = " opencv"
 PACKAGECONFIG_append_mx6qp = " opencv"
-PACKAGECONFIG_append_mx8 = " opencv kms"
+PACKAGECONFIG_append_mx8 = " kms"
 
 PACKAGECONFIG[wayland] = "--enable-wayland --disable-x11,--disable-wayland,wayland-native wayland wayland-protocols libdrm"
 
