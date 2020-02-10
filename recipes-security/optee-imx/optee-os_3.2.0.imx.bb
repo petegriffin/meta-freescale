@@ -9,14 +9,14 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=69663ab153298557a59c67a60a743e5b"
 inherit deploy python3native autotools
 DEPENDS = "python3-pycrypto-native u-boot-mkimage-native"
 
-SRCBRANCH = "imx_4.19.35_1.1.0"
-OPTEE_OS_SRC ?= "git://source.codeaurora.org/external/imx/imx-optee-os.git;protocol=https"
+SRCBRANCH = "oemcrypto_v15"
+OPTEE_OS_SRC ?= "git://github.com/ajutras-linaro/optee_os.git;protocol=https"
 SRC_URI = "\
 	${OPTEE_OS_SRC};branch=${SRCBRANCH} \
 	file://0001-scripts-update-scripts-to-use-python3.patch \
 "
 
-SRCREV = "6a22e6e8a2840b245808527679f3397b7e620b3c"
+SRCREV = "0d7ab3a0ccee14b4b2c9f5f703e43648de644deb"
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build.${PLATFORM_FLAVOR}"
