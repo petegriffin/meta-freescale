@@ -14,6 +14,8 @@ OPTEE_OS_SRC ?= "git://github.com/ajutras-linaro/optee_os.git;protocol=https"
 SRC_URI = "\
 	${OPTEE_OS_SRC};branch=${SRCBRANCH} \
 	file://0001-scripts-update-scripts-to-use-python3.patch \
+        file://0001-core-modify-tee_otp_get_hw_unique_key-to-return-TEE_.patch \
+        file://0001-build-remove-pedantic-from-build-directives.patch \
 "
 
 SRCREV = "0d7ab3a0ccee14b4b2c9f5f703e43648de644deb"
