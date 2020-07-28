@@ -1,0 +1,114 @@
+From 806bcd5e41027b6399cf98b47427c3426ad78117 Mon Sep 17 00:00:00 2001
+From: Peter Griffin <peter.griffin@linaro.org>
+Date: Fri, 10 Jul 2020 00:29:01 +0100
+Subject: [PATCH] gstwaylandsink: fixes a but with window width/height
+ properties
+
+We use this window-width & window-height properties with
+wpewebkit when we use waylandsink as the video sink.
+
+TODO: This commit adds a whole bunch of debug that is useful
+currently for development/debugging, go back and remove.
+
+Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+---
+ ext/wayland/gstwaylandsink.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
+
+diff --git a/ext/wayland/gstwaylandsink.c b/ext/wayland/gstwaylandsink.c
+index d5aa48fe7..014bf38b6 100644
+--- a/ext/wayland/gstwaylandsink.c
++++ b/ext/wayland/gstwaylandsink.c
+@@ -291,9 +291,11 @@ gst_wayland_sink_get_property (GObject * object,
+       GST_OBJECT_UNLOCK (sink);
+       break;
+     case PROP_WINDOW_WIDTH:
++      GST_DEBUG("PAG: get PROP_WINDOW_WIDTH");
+       g_value_set_int (value, sink->preferred_width);
+       break;
+     case PROP_WINDOW_HEIGHT:
++      GST_DEBUG("PAG: get PROP_WINDOW_HEIGHT");
+       g_value_set_int (value, sink->preferred_height);
+       break;
+     case PROP_ALPHA:
+@@ -326,9 +328,11 @@ gst_wayland_sink_set_property (GObject * object,
+       GST_OBJECT_UNLOCK (sink);
+       break;
+     case PROP_WINDOW_WIDTH:
++      GST_DEBUG("PAG: set PROP_WINDOW_WIDTH");
+       sink->preferred_width = g_value_get_int (value);
+       break;
+     case PROP_WINDOW_HEIGHT:
++      GST_DEBUG("PAG: set PROP_WINDOW_HEIGHT []");
+       sink->preferred_height = g_value_get_int (value);
+       break;
+     case PROP_ALPHA:
+@@ -448,10 +452,15 @@ gst_wayland_sink_change_state (GstElement * element, GstStateChange transition)
+ 
+   switch (transition) {
+     case GST_STATE_CHANGE_NULL_TO_READY:
+-      if (!gst_wayland_sink_find_display (sink))
++      if (!gst_wayland_sink_find_display (sink)) {
++	GST_DEBUG("PAG: !gst_wayland_sink_find_display(sink) returning!");
+         return GST_STATE_CHANGE_FAILURE;
++      }
++      GST_DEBUG("PAG: setting display width/height to preferred");
+       sink->display->preferred_width = sink->preferred_width;
+       sink->display->preferred_height = sink->preferred_height;
++      GST_DEBUG("PAG: display->preferred_width = %d sink->display->preferred_height=%d"
++		, sink->display->preferred_width, sink->display->preferred_height);
+       break;
+     default:
+       break;
+@@ -469,17 +478,21 @@ gst_wayland_sink_change_state (GstElement * element, GstStateChange transition)
+       gst_buffer_replace (&sink->last_buffer, NULL);
+       gst_wayland_sink_config_hdr10 (sink, NULL);
+       if (sink->window) {
++	GST_DEBUG("PAG: PAUSED_TO_READY sink->window");
+         gst_wl_window_set_alpha(sink->window, 1.0);
+         wl_surface_damage (sink->window->area_surface, 0, 0,
+               sink->window->render_rectangle.w, sink->window->render_rectangle.h);
+         wl_surface_commit (sink->window->area_surface);
+         wl_display_roundtrip (sink->display->display);
+         if (gst_wl_window_is_toplevel (sink->window)) {
++	  GST_DEBUG ("PAG: PAUSED_TO_READY wl_window_is_toplevel");
+           g_clear_object (&sink->window);
+         } else {
+           /* remove buffer from surface, show nothing */
+           gst_wl_window_render (sink->window, NULL, NULL);
+         }
++      } else {
++	GST_DEBUG ("PAG !sink->window");
+       }
+       break;
+     case GST_STATE_CHANGE_READY_TO_NULL:
+@@ -495,6 +508,7 @@ gst_wayland_sink_change_state (GstElement * element, GstStateChange transition)
+        * restarted (GstVideoOverlay behaves like that in other sinks)
+        */
+       if (sink->display && !sink->window) {     /* -> the window was toplevel */
++	GST_DEBUG ("READY_TO_NULL: toplevel - disconnect to allow GstVideoOverlay");
+         g_clear_object (&sink->display);
+         g_mutex_lock (&sink->render_lock);
+         sink->redraw_pending = FALSE;
+@@ -913,6 +927,18 @@ gst_wayland_sink_show_frame (GstVideoSink * vsink, GstBuffer * buffer)
+     g_mutex_lock (&sink->render_lock);
+ 
+     if (!sink->window) {
++      GST_DEBUG ("No window provided - create one ourselves  PAG");
++      GST_DEBUG("PAG 1 sink->display->preferred_width = %d & height %d "
++		, sink->display->preferred_width, sink->display->preferred_height);
++      GST_DEBUG("PAG 2 sink->preferred_width = %d & height %d "
++		, sink->preferred_width, sink->preferred_height);
++
++      sink->display->preferred_width = sink->preferred_width;
++      sink->display->preferred_height = sink->preferred_height;
++
++      GST_DEBUG("PAG 3 sink->display->preferred_width = %d & height %d "
++		, sink->display->preferred_width, sink->display->preferred_height);
++      
+       /* if we were not provided a window, create one ourselves */
+       sink->window = gst_wl_window_new_toplevel (sink->display,
+           &sink->video_info, sink->fullscreen, &sink->render_lock);
+-- 
+2.17.1
+

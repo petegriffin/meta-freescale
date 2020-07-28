@@ -25,6 +25,7 @@ SRC_URI = " \
     file://fix-maybe-uninitialized-warnings-when-compiling-with-Os.patch \
     file://avoid-including-sys-poll.h-directly.patch \
     file://ensure-valid-sentinels-for-gst_structure_get-etc.patch \
+    file://0001-gstwaylandsink-fixes-a-but-with-window-width-height-.patch \
 "
 SRCREV = "b80b6a2db690c815a88c2450956e23e86dbd6538"
 
